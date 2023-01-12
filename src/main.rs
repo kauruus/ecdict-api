@@ -58,12 +58,14 @@ async fn handle_exact(
 
 async fn handle_fuzzy(
     State(pool): State<SqlitePool>,
-    Path(word): Path<String>,
+    Path(query): Path<String>,
 ) -> Result<Json<serde_json::Value>, EcdictError> {
     let mut conn = pool.acquire().await?;
 
+    let query = query.replace('.', "%");
+
     let words = sqlx::query_as::<_, Word>("select * from stardict where word like ? limit 10")
-        .bind(word)
+        .bind(query)
         .fetch_all(&mut conn)
         .await?;
 
