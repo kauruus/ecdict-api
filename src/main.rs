@@ -9,8 +9,10 @@ use axum::{
 use serde_json::json;
 use sqlx::SqlitePool;
 
+#[cfg(target_env = "musl")]
 use mimalloc::MiMalloc;
 
+#[cfg(target_env = "musl")]
 #[global_allocator]
 static GLOBAL: MiMalloc = MiMalloc;
 
