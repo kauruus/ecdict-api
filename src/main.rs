@@ -8,6 +8,7 @@ use axum::{
 };
 use serde_json::json;
 use sqlx::SqlitePool;
+use autometrics::{autometrics, prometheus_exporter};
 
 #[cfg(target_env = "musl")]
 use mimalloc::MiMalloc;
@@ -26,6 +27,9 @@ struct Word {
 
 #[tokio::main]
 async fn main() {
+    prometheus_exporter::init();
+
+
     let pool = sqlx::sqlite::SqlitePoolOptions::new()
         .max_connections(16)
         .connect("./stardict.db")
@@ -36,6 +40,9 @@ async fn main() {
         .route("/", get(|| async { "REST API FOR ECDICT" }))
         .route("/exact/:word", get(handle_exact))
         .route("/fuzzy/:word", get(handle_fuzzy))
+        .route("/metrics", get(|| async {
+            prometheus_exporter::encode_http_response()
+        }))
         .with_state(pool);
 
     axum::Server::bind(&"0.0.0.0:8000".parse().unwrap())
@@ -44,6 +51,7 @@ async fn main() {
         .unwrap();
 }
 
+#[autometrics]
 async fn handle_exact(
     State(pool): State<SqlitePool>,
     Path(word): Path<String>,
@@ -58,6 +66,7 @@ async fn handle_exact(
     Ok(word)
 }
 
+#[autometrics]
 async fn handle_fuzzy(
     State(pool): State<SqlitePool>,
     Path(query): Path<String>,
