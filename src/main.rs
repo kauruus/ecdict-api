@@ -51,7 +51,7 @@ async fn main() {
         .unwrap();
 }
 
-#[autometrics]
+#[autometrics(ok_if = Result::is_ok, track_concurrency)]
 async fn handle_exact(
     State(pool): State<SqlitePool>,
     Path(word): Path<String>,
@@ -66,7 +66,7 @@ async fn handle_exact(
     Ok(word)
 }
 
-#[autometrics]
+#[autometrics(ok_if = Result::is_ok, track_concurrency)]
 async fn handle_fuzzy(
     State(pool): State<SqlitePool>,
     Path(query): Path<String>,
