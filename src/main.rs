@@ -32,7 +32,7 @@ async fn main() {
 
     let pool = sqlx::sqlite::SqlitePoolOptions::new()
         .max_connections(16)
-        .connect("./stardict.db")
+        .connect("./stardict.db?mode=ro")
         .await
         .expect("open sqlite db");
 
