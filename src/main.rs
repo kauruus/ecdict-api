@@ -52,7 +52,7 @@ async fn handle_exact(
 
     let word: Word = sqlx::query_as::<_, Word>("select * from stardict where word = ?")
         .bind(word)
-        .fetch_one(&mut conn)
+        .fetch_one(&mut *conn)
         .await?;
 
     Ok(word)
@@ -68,7 +68,7 @@ async fn handle_fuzzy(
 
     let words = sqlx::query_as::<_, Word>("select * from stardict where word like ? limit 10")
         .bind(query)
-        .fetch_all(&mut conn)
+        .fetch_all(&mut *conn)
         .await?;
 
     Ok(Json(json!(words)))
